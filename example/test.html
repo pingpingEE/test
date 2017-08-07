@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="../node_modules/openlayers/dist/ol.css">
+</head>
+<body>
+<div class="map" id="map"></div>
+<script src="../node_modules/openlayers/dist/ol.js"></script>
+<script type="text/javascript">
+  var map = new ol.Map({
+    layers: [
+      new ol.layer.Tile({
+        source: new ol.source.OSM()
+      })
+    ],
+    target: 'map',
+    view: new ol.View({
+      center: [-11002773.23093247, 4600907.689710885],
+      zoom: 15
+    })
+  });
+</script>
+</body>
+</html>
