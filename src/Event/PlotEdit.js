@@ -77,7 +77,7 @@ class PlotEdit {
     if (this.activePlot) {
       let geom = this.activePlot.getGeometry()
       if (geom) {
-        points = geom.getPoints()
+        points = geom.getClosestPoint()
       }
     }
     return points

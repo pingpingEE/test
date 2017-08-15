@@ -54,6 +54,12 @@ class PlotDraw {
     this.drawOverlay = null
 
     /**
+     *  标绘状态
+     * @type {boolean}
+     */
+    this.plotState = 'start' // start 标绘开始 end 标绘结束
+
+    /**
      * 事件监听器
      * @type {*}
      */
@@ -87,6 +93,7 @@ class PlotDraw {
     this.plotParams = params
     this.points = []
     this.map.on('click', this.mapFirstClickHandler, this)
+    this.map.on('dblclick', this.mapDblClickHandler, this)
   }
 
   /**
@@ -96,10 +103,10 @@ class PlotDraw {
    */
   mapFirstClickHandler (event) {
     this.points.push(event.coordinate)
-    if (this.plotType === 'Point') {
+    if (this.plotType === 'Point' && this.plotState === 'start') {
       this.plot = this.createPlot(this.plotType, this.points, this.plotParams)
     }
-    if (this.plotType === 'Polyline') {
+    if (this.plotType === 'Polyline' && this.plotState === 'start') {
       if (this.points.length === 1) {
         this.plot = this.createPlot(this.plotType, this.points, this.plotParams)
       } else {
@@ -110,6 +117,14 @@ class PlotDraw {
     if (this.points.length === 1) {
       this.drawLayer.getSource().addFeature(this.plot)
     }
+  }
+
+  /**
+   * 地图双击事件
+   * @param event
+   */
+  mapDblClickHandler (event) {
+    this.plotState = 'end'
   }
 
   /**
