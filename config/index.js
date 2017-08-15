@@ -13,7 +13,7 @@ module.exports = {
     cssSourceMap: true
   },
   base: {
-    libraryName: 'ol-control-loading',
+    libraryName: 'Plot',
     distDirectory: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static'
   }

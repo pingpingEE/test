@@ -7,8 +7,12 @@
   <link rel="stylesheet" href="../node_modules/openlayers/dist/ol.css">
 </head>
 <body>
+<button onclick="active('Point')">标点</button>
+<button onclick="event1()">事件监听</button>
+<button onclick="addLayer()">叠加图层</button>
 <div class="map" id="map"></div>
 <script src="../node_modules/openlayers/dist/ol.js"></script>
+<script src="../dist/Plot.min.js"></script>
 <script type="text/javascript">
   var map = new ol.Map({
     layers: [
@@ -22,6 +26,60 @@
       zoom: 15
     })
   });
+
+  map.on('click', function (event) {
+    var feature = map.forEachFeatureAtPixel(event.pixel, function (feature) { // 根据点的位置获取最近的要素
+      return feature
+    });
+    if (feature) {
+      feature.dispatchEvent({
+        type: 'drawEnd',
+        event: event,
+        feature: feature
+      })
+
+      feature.on('drawEnd', onDrawEnd)
+    }
+  })
+
+  var plot = new Plot.PlotDraw(map, {})
+
+  function active(type) {
+    console.info(map.getLayers().getArray().length)
+    plot.active('Point');
+  }
+
+  function event1() {
+
+  }
+
+  function onDrawEnd(value) {
+    console.info(value)
+  }
+
+  function addLayer() {
+    var vector = new ol.layer.Vector({
+      source: new ol.source.Vector()
+    })
+    var pointFeature = new ol.Feature({
+      geometry: new ol.geom.Point([-11002773.23093247, 4600907.689710885])
+    })
+    var style = new ol.style.Style({ // 设置叠加样式
+      image: new ol.style.Circle({
+        radius: 50,
+        fill: new ol.style.Fill({
+          color: 'red'
+        }), // 填充颜色
+        stroke: new ol.style.Stroke({
+          color: 'red',
+          size: 10
+        })  // 边框颜色
+      })
+    })
+    pointFeature.setStyle(style)
+    vector.getSource().addFeature(pointFeature)
+    map.addLayer(vector)
+  }
 </script>
 </body>
 </html>
