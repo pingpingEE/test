@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>封装好后进行测试 example</title>
+  <link rel="stylesheet" href="../node_modules/openlayers/dist/ol.css">
+</head>
+<body>
+<button onclick="active('Point')">标点</button>
+<button onclick="active('Polyline')">标线</button>
+<div id="map"></div>
+<script src="../node_modules/openlayers/dist/ol.js"></script>
+<script src="../dist/Plot.min.js"></script>
+<script type="text/javascript">
+  var map = new ol.Map({
+    layers: [
+      new ol.layer.Tile({
+        source: new ol.source.OSM()
+      })
+    ],
+    target: 'map',
+    view: new ol.View({
+      center: [-11002773.23093247, 4600907.689710885],
+      zoom: 15
+    })
+  });
+  var plotDraw = new Plot.PlotDraw(map, {})
+  var plotEdit = new Plot.PlotEdit(map, {})
+
+  function active(type) {
+    plotDraw.active(type);
+  }
+
+  map.on('click', function (event) {
+    var feature = map.forEachFeatureAtPixel(event.pixel, function (feature) { // 根据点的位置获取最近的要素
+      return feature
+    });
+    if (feature) {
+//      plotEdit.activate(feature);
+    }
+  })
+</script>
+</body>
+</html>
