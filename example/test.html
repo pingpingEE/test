@@ -8,12 +8,19 @@
 </head>
 <body>
 <button onclick="active('Point')">标点</button>
+<button onclick="active('Polyline')">标线</button>
 <button onclick="event1()">事件监听</button>
-<button onclick="addLayer()">叠加图层</button>
+<button onclick="addLayer('Point')">叠加图层（点）</button>
+<button onclick="addLayer('LineString')">叠加图层（线）</button>
 <div class="map" id="map"></div>
 <script src="../node_modules/openlayers/dist/ol.js"></script>
 <script src="../dist/Plot.min.js"></script>
 <script type="text/javascript">
+  var lx = '';
+  var plotStart = false;
+  var vectorLine = null;
+  var lineStringFeature = null;
+  var count = 0;
   var map = new ol.Map({
     layers: [
       new ol.layer.Tile({
@@ -27,26 +34,35 @@
     })
   });
 
+  var plot = new Plot.PlotDraw(map, {})
+  var plotEdit = new Plot.PlotEdit(map, {})
+  var points = []
   map.on('click', function (event) {
-    var feature = map.forEachFeatureAtPixel(event.pixel, function (feature) { // 根据点的位置获取最近的要素
-      return feature
-    });
-    if (feature) {
-      feature.dispatchEvent({
-        type: 'drawEnd',
-        event: event,
-        feature: feature
-      })
-
-      feature.on('drawEnd', onDrawEnd)
-    }
+//    count = count + 1;
+//    console.info(event.coordinate)
+//    if (lx === 'LineString' && plotStart === true) {
+//      points.push(event.coordinate)
+//      lineStringFeature.getGeometry().appendCoordinate(event.coordinate)
+//      if (count === 1) {
+//        vectorLine.getSource().addFeature(lineStringFeature)
+//      }
+//    }
+//    var feature = map.forEachFeatureAtPixel(event.pixel, function (feature) { // 根据点的位置获取最近的要素
+//      return feature
+//    });
+//    if (feature) {
+//      plotEdit.activate(feature);
+//    }
   })
 
-  var plot = new Plot.PlotDraw(map, {})
-
+//  map.on('dblclick', function (event) {
+//    plotStart = false; // 绘制结束
+//    console.info(points)
+//
+//  })
   function active(type) {
     console.info(map.getLayers().getArray().length)
-    plot.active('Point');
+    plot.active(type);
   }
 
   function event1() {
@@ -57,28 +73,46 @@
     console.info(value)
   }
 
-  function addLayer() {
-    var vector = new ol.layer.Vector({
-      source: new ol.source.Vector()
-    })
-    var pointFeature = new ol.Feature({
-      geometry: new ol.geom.Point([-11002773.23093247, 4600907.689710885])
-    })
-    var style = new ol.style.Style({ // 设置叠加样式
-      image: new ol.style.Circle({
-        radius: 50,
-        fill: new ol.style.Fill({
-          color: 'red'
-        }), // 填充颜色
-        stroke: new ol.style.Stroke({
-          color: 'red',
-          size: 10
-        })  // 边框颜色
+  function addLayer(type) {
+    lx = type;
+    if (type === 'Point') {
+      var vector = new ol.layer.Vector({
+        source: new ol.source.Vector()
       })
-    })
-    pointFeature.setStyle(style)
-    vector.getSource().addFeature(pointFeature)
-    map.addLayer(vector)
+      var pointFeature = new ol.Feature({
+        geometry: new ol.geom.Point([-11002773.23093247, 4600907.689710885])
+      })
+      var style = new ol.style.Style({ // 设置叠加样式
+        image: new ol.style.Circle({
+          radius: 50,
+          fill: new ol.style.Fill({
+            color: 'red'
+          }), // 填充颜色
+          stroke: new ol.style.Stroke({
+            color: 'red',
+            size: 10
+          })  // 边框颜色
+        })
+      })
+      pointFeature.setStyle(style)
+      vector.getSource().addFeature(pointFeature)
+      map.addLayer(vector)
+    } else if (type === 'LineString') {
+      vectorLine = new ol.layer.Vector({
+        source: new ol.source.Vector(),
+        style: new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            width: 4,
+            color: '#0000EE'
+          })
+        })
+      })
+      lineStringFeature = new ol.Feature({
+        geometry: new ol.geom.LineString()
+      })
+      map.addLayer(vectorLine)
+      plotStart = true;
+    }
   }
 </script>
 </body>

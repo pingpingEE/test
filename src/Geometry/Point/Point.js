@@ -5,7 +5,7 @@
 import PlotTypes from '../../Utils/PlotTypes'
 const GeomPoint = ol.geom.Point
 class Point extends GeomPoint {
-  constructor (point, params) {
+  constructor (points, params) {
     super()
     // ol.geom.Point.call(this, [])
     /**
@@ -31,13 +31,12 @@ class Point extends GeomPoint {
     /**
      * 开始设置 point 点
      */
-    this.tectonicPoint(point)
+    this.tectonicPoint(points)
   }
 
-  tectonicPoint (point) {
-    console.info(point)
+  tectonicPoint (points) {
     let feature = new ol.Feature({
-      geometry: new ol.geom.Point(point)
+      geometry: new ol.geom.Point(points[0])
     })
     // 初始化点的样式
     feature.setStyle(this.getStyleByPoint(this.options))

@@ -15,7 +15,7 @@ class PlotDraw {
      * 交互点
      * @type {null}
      */
-    this.points = null
+    this.points = []
     /**
      * 当前标绘工具
      * @type {null}
@@ -85,6 +85,7 @@ class PlotDraw {
   active (type, params) {
     this.plotType = type
     this.plotParams = params
+    this.points = []
     this.map.on('click', this.mapFirstClickHandler, this)
   }
 
@@ -94,10 +95,21 @@ class PlotDraw {
    * @param event
    */
   mapFirstClickHandler (event) {
-    this.points = []
-    this.points = event.coordinate
-    this.plot = this.createPlot(this.plotType, this.points, this.plotParams)
-    this.drawLayer.getSource().addFeature(this.plot)
+    this.points.push(event.coordinate)
+    if (this.plotType === 'Point') {
+      this.plot = this.createPlot(this.plotType, this.points, this.plotParams)
+    }
+    if (this.plotType === 'Polyline') {
+      if (this.points.length === 1) {
+        this.plot = this.createPlot(this.plotType, this.points, this.plotParams)
+      } else {
+        // 向要素追加点
+        this.plot.getGeometry().appendCoordinate(event.coordinate)
+      }
+    }
+    if (this.points.length === 1) {
+      this.drawLayer.getSource().addFeature(this.plot)
+    }
   }
 
   /**
@@ -154,6 +166,8 @@ class PlotDraw {
     switch (type) {
       case PlotTypes.POINT:
         return new Plots.Point(points, params).getPointFeature()
+      case PlotTypes.POLYLINE:
+        return new Plots.Polyline(points, params).getLineStringFeature()
     }
     return null
   }
