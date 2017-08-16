@@ -92,6 +92,7 @@ class PlotDraw {
     this.plotType = type
     this.plotParams = params
     this.points = []
+    this.plotState = 'start'
     this.map.on('click', this.mapFirstClickHandler, this)
     this.map.on('dblclick', this.mapDblClickHandler, this)
   }
@@ -103,7 +104,12 @@ class PlotDraw {
    */
   mapFirstClickHandler (event) {
     this.points.push(event.coordinate)
-    if (this.plotType === 'Point' && this.plotState === 'start') {
+    let plotInfo = {
+      type: this.plotType,
+      points: this.points
+    }
+    window.sessionStorage.setItem('plot-info', JSON.stringify(plotInfo))
+    if (this.plotType === 'Point') {
       this.plot = this.createPlot(this.plotType, this.points, this.plotParams)
     }
     if (this.plotType === 'Polyline' && this.plotState === 'start') {
@@ -185,6 +191,14 @@ class PlotDraw {
         return new Plots.Polyline(points, params).getLineStringFeature()
     }
     return null
+  }
+
+  /**
+   * 获取坐标点
+   * @returns {Array.<T>}
+   */
+  getPoints () {
+    return this.points.slice(0)
   }
 }
 export default PlotDraw

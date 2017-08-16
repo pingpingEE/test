@@ -27,6 +27,12 @@ class PlotEdit {
      * @type {null}
      */
     this.activePlot = null
+
+    /**
+     * 元素
+     * @type {{}}
+     */
+    this.elementTable = {}
   }
 
   /**
@@ -39,6 +45,30 @@ class PlotEdit {
       return false
     } else {
       return mapElement.parentNode
+    }
+  }
+
+  /**
+   * 初始化提示DOM
+   * @returns {boolean}
+   */
+  initHelperDom () {
+    if (!this.map || !this.activePlot) {
+      return false
+    }
+    let parent = this.getMapParentElement()
+    if (!parent) {
+      return false
+    } else {
+      let hiddenDiv = this.createHidden('div', parent, 'plot-helper-hidden-div')
+      let cPnts = this.getControlPoints()
+      if (cPnts && Array.isArray(cPnts) && cPnts.length > 0) {
+        cPnts.forEach((item, index) => {
+          let id = 'plot-helper-control-point-div' + '-' + index
+          this.create('div', 'plot-helper-control-point-div', hiddenDiv, id)
+          this.elementTable[id] = index
+        })
+      }
     }
   }
 
@@ -62,8 +92,8 @@ class PlotEdit {
         this.controlPoints.push(pnt)
         this.map.addOverlay(pnt)
         this.map.render()
-        // DomUtil.addListener(element, 'mousedown', this.controlPointMouseDownHandler, this)
-        // DomUtil.addListener(element, 'mousemove', this.controlPointMouseMoveHandler2, this)
+        // this.addListener(element, 'mousedown', this.controlPointMouseDownHandler, this)
+        // this.addListener(element, 'mousemove', this.controlPointMouseMoveHandler2, this)
       })
     }
   }
@@ -77,7 +107,10 @@ class PlotEdit {
     if (this.activePlot) {
       let geom = this.activePlot.getGeometry()
       if (geom) {
-        points = geom.getClosestPoint()
+        let plotInfo = JSON.parse(window.sessionStorage.getItem('plot-info'))
+        if (plotInfo && plotInfo.points && plotInfo.points.length > 0) {
+          points = plotInfo.points
+        }
       }
     }
     return points
@@ -90,7 +123,33 @@ class PlotEdit {
    */
   activate (plot) {
     this.activePlot = plot
+    this.initHelperDom()
     this.initControlPoints()
   }
+
+  createHidden (tagName, parent, id) {
+    let element = document.createElement(tagName)
+    element.style.display = 'none'
+    if (id) {
+      element.id = id
+    }
+    if (parent) {
+      parent.appendChild(element)
+    }
+    return element
+  }
+
+  create (tagName, className, container, id) {
+    let el = document.createElement(tagName)
+    el.className = className || ''
+    if (id) {
+      el.id = id
+    }
+    if (container) {
+      container.appendChild(el)
+    }
+    return el
+  }
+
 }
 export default PlotEdit

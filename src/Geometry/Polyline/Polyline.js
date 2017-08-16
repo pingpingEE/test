@@ -2,7 +2,7 @@ import PlotTypes from '../../Utils/PlotTypes'
 class Polyline extends (ol.geom.LineString) {
   constructor (points, params) {
     super()
-    // ol.geom.LineString.call(this, [])
+    ol.geom.LineString.call(this, [])
     /**
      * 当前要素类型为线
      * @type {string}
@@ -53,6 +53,32 @@ class Polyline extends (ol.geom.LineString) {
    */
   getLineStringFeature () {
     return this.lineStringFeature
+  }
+
+  /**
+   * 设置坐标点
+   * @param value
+   */
+  setPoints (value) {
+    this.points = !value ? [] : value
+    if (this.points.length >= 2) {
+      this.generate()
+    }
+  }
+
+  /**
+   * 获取坐标点
+   * @returns {Array.<T>}
+   */
+  getPoints () {
+    return this.points.slice(0)
+  }
+
+  /**
+   * 执行动作
+   */
+  generate () {
+    this.setCoordinates(this.points)
   }
 }
 

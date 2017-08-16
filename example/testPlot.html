@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <title>封装好后进行测试 example</title>
   <link rel="stylesheet" href="../node_modules/openlayers/dist/ol.css">
+  <style>
+    .plot-helper-control-point-div {
+      width: 10px;
+      height: 10px;
+      border: 1px solid #000;
+      border-radius: 100%;
+      background-color: #ffffff;
+      opacity: 0.6;
+      cursor: move;
+    }
+  </style>
 </head>
 <body>
 <button onclick="active('Point')">标点</button>
@@ -35,8 +46,8 @@
     var feature = map.forEachFeatureAtPixel(event.pixel, function (feature) { // 根据点的位置获取最近的要素
       return feature
     });
-    if (feature) {
-//      plotEdit.activate(feature);
+    if (feature && plotDraw.plotState === 'end') {
+      plotEdit.activate(feature);
     }
   })
 </script>
