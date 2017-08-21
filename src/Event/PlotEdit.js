@@ -65,7 +65,9 @@ class PlotEdit {
       if (cPnts && Array.isArray(cPnts) && cPnts.length > 0) {
         cPnts.forEach((item, index) => {
           let id = 'plot-helper-control-point-div' + '-' + index
+          // plot-helper-control-point-div 为控制点的样式 设置css
           this.create('div', 'plot-helper-control-point-div', hiddenDiv, id)
+          // this.elementTable 用作记录控制点
           this.elementTable[id] = index
         })
       }
@@ -127,6 +129,13 @@ class PlotEdit {
     this.initControlPoints()
   }
 
+  /**
+   * 创建隐藏dom元素  用作添加overlay作准备
+   * @param tagName
+   * @param parent
+   * @param id
+   * @returns {Element}
+   */
   createHidden (tagName, parent, id) {
     let element = document.createElement(tagName)
     element.style.display = 'none'
@@ -139,6 +148,14 @@ class PlotEdit {
     return element
   }
 
+  /**
+   * 根据点创建 多个dom 用作控制点
+   * @param tagName
+   * @param className
+   * @param container
+   * @param id
+   * @returns {Element}
+   */
   create (tagName, className, container, id) {
     let el = document.createElement(tagName)
     el.className = className || ''
@@ -150,6 +167,7 @@ class PlotEdit {
     }
     return el
   }
+  // ol.interaction.DoubleClickZoom  扩展 解决绘制结束 双击zoom级别放大的操作
 
 }
 export default PlotEdit

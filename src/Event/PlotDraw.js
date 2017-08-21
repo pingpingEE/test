@@ -65,6 +65,8 @@ class PlotDraw {
      */
     this.Observable = new ol.Object()
 
+    this.feature = null
+
     /**
      * 创建图层名称
      * @type {string}
@@ -95,6 +97,7 @@ class PlotDraw {
     this.plotState = 'start'
     this.map.on('click', this.mapFirstClickHandler, this)
     this.map.on('dblclick', this.mapDblClickHandler, this)
+    this.map.on('pointermove', this.onMouseMoveHandler, this)
   }
 
   /**
@@ -103,25 +106,38 @@ class PlotDraw {
    * @param event
    */
   mapFirstClickHandler (event) {
-    this.points.push(event.coordinate)
-    let plotInfo = {
-      type: this.plotType,
-      points: this.points
-    }
-    window.sessionStorage.setItem('plot-info', JSON.stringify(plotInfo))
-    if (this.plotType === 'Point') {
-      this.plot = this.createPlot(this.plotType, this.points, this.plotParams)
-    }
-    if (this.plotType === 'Polyline' && this.plotState === 'start') {
-      if (this.points.length === 1) {
+    if (this.plotState === 'start') {
+      this.points.push(event.coordinate)
+      let plotInfo = {
+        type: this.plotType,
+        points: this.points
+      }
+      window.sessionStorage.setItem('plot-info', JSON.stringify(plotInfo))
+      if (this.plotType === 'Point') {
         this.plot = this.createPlot(this.plotType, this.points, this.plotParams)
-      } else {
-        // 向要素追加点
-        this.plot.getGeometry().appendCoordinate(event.coordinate)
+        this.feature = this.plot.getPointFeature()
+      }
+      if (this.plotType === 'Polyline' && this.plotState === 'start') {
+        if (this.points.length === 1) {
+          this.plot = this.createPlot(this.plotType, this.points, this.plotParams)
+          this.feature = this.plot.getLineStringFeature()
+        } else {
+          // 向要素追加点
+          // this.plot.getGeometry().appendCoordinate(event.coordinate)
+        }
+      }
+      if (this.points.length === 1) {
+        this.drawLayer.getSource().addFeature(this.feature)
       }
     }
-    if (this.points.length === 1) {
-      this.drawLayer.getSource().addFeature(this.plot)
+  }
+
+  onMouseMoveHandler (event) {
+    if (this.points.length >= 1) {
+      let freehand = this.plot.freehand ? this.plot.freehand : false
+      if (!freehand && this.plotState === 'start' && this.plotType !== 'Point') {
+        this.feature.getGeometry().setCoordinates(this.points.concat([event.coordinate]))
+      }
     }
   }
 
@@ -131,49 +147,7 @@ class PlotDraw {
    */
   mapDblClickHandler (event) {
     this.plotState = 'end'
-  }
-
-  /**
-   * 绘制结束
-   */
-  drawEnd (event) {
-    // this.Observable.dispatchEvent({
-    //   type: 'drawEnd',
-    //   event: event,
-    //   feature: this.feature
-    // })
-    if (this.feature && this.options['isClear']) {
-      this.drawLayer.getSource().removeFeature(this.feature)
-    }
-    this.activateMapTools()
-    this.removeEventHandlers()
-    this.map.removeOverlay(this.drawOverlay)
-    this.points = []
-    this.plot = null
-    this.plotType = null
-    this.plotParams = null
-    this.feature = null
-  }
-
-  /**
-   * 移除事件监听
-   */
-  removeEventHandlers () {
-    this.map.un('click', this.mapFirstClickHandler, this)
-    // this.map.un('click', this.mapNextClickHandler, this)
-    // Events.unlisten(this.mapViewport, EventType.MOUSEMOVE, this.mapMouseMoveHandler, this)
-    // this.map.un('dblclick', this.mapDoubleClickHandler, this)
-  }
-
-  /**
-   * 激活已取消的地图工具
-   * 还原之前状态
-   */
-  activateMapTools () {
-    if (this.dblClickZoomInteraction && this.dblClickZoomInteraction instanceof ol.interaction.DoubleClickZoom) {
-      this.map.addInteraction(this.dblClickZoomInteraction)
-      this.dblClickZoomInteraction = null
-    }
+    // 停止双击放大地图级别操作 只有每次第一次停止 其他情况下 放大zoom级别方式仍然存在
   }
 
   /**
@@ -186,19 +160,11 @@ class PlotDraw {
     let params = _params || {}
     switch (type) {
       case PlotTypes.POINT:
-        return new Plots.Point(points, params).getPointFeature()
+        return new Plots.Point(points, params)
       case PlotTypes.POLYLINE:
-        return new Plots.Polyline(points, params).getLineStringFeature()
+        return new Plots.Polyline(points, params)
     }
     return null
-  }
-
-  /**
-   * 获取坐标点
-   * @returns {Array.<T>}
-   */
-  getPoints () {
-    return this.points.slice(0)
   }
 }
 export default PlotDraw

@@ -20,6 +20,8 @@ class Polyline extends (ol.geom.LineString) {
      */
     this.lineStringFeature = null
 
+    this.freehand = false
+
     /**
      *  标绘线
      */

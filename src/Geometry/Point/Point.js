@@ -28,6 +28,8 @@ class Point extends GeomPoint {
      * @type {null}
      */
     this.pointFeature = null
+
+    this.freehand = false
     /**
      * 开始设置 point 点
      */
@@ -46,13 +48,13 @@ class Point extends GeomPoint {
   getStyleByPoint (options) {
     return new ol.style.Style({ // 设置叠加样式
       image: new ol.style.Circle({
-        radius: 50,
+        radius: 10,
         fill: new ol.style.Fill({
-          color: 'red'
+          color: 'white'
         }), // 填充颜色
         stroke: new ol.style.Stroke({
           color: 'red',
-          size: 10
+          size: 5
         })  // 边框颜色
       })
     })
