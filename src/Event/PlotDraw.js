@@ -137,6 +137,7 @@ class PlotDraw {
       let freehand = this.plot.freehand ? this.plot.freehand : false
       if (!freehand && this.plotState === 'start' && this.plotType !== 'Point') {
         this.feature.getGeometry().setCoordinates(this.points.concat([event.coordinate]))
+        this.feature.set('points', this.points.concat([event.coordinate]))
       }
     }
   }

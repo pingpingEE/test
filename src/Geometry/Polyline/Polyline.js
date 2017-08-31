@@ -32,9 +32,7 @@ class Polyline extends (ol.geom.LineString) {
     let feature = new ol.Feature({
       geometry: new ol.geom.LineString()
     })
-    points.forEach((el) => {
-      feature.getGeometry().appendCoordinate(el)
-    })
+    feature.getGeometry().setCoordinates(points)
     // 初始化点的样式
     feature.setStyle(this.getStyleByLineString(this.options))
     this.lineStringFeature = feature
@@ -55,32 +53,6 @@ class Polyline extends (ol.geom.LineString) {
    */
   getLineStringFeature () {
     return this.lineStringFeature
-  }
-
-  /**
-   * 设置坐标点
-   * @param value
-   */
-  setPoints (value) {
-    this.points = !value ? [] : value
-    if (this.points.length >= 2) {
-      this.generate()
-    }
-  }
-
-  /**
-   * 获取坐标点
-   * @returns {Array.<T>}
-   */
-  getPoints () {
-    return this.points.slice(0)
-  }
-
-  /**
-   * 执行动作
-   */
-  generate () {
-    this.setCoordinates(this.points)
   }
 }
 

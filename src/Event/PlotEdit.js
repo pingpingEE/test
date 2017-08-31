@@ -33,6 +33,8 @@ class PlotEdit {
      * @type {{}}
      */
     this.elementTable = {}
+    this.mapDragPan = null
+    this.tempControlPoints = []
   }
 
   /**
@@ -80,6 +82,7 @@ class PlotEdit {
   initControlPoints () {
     this.controlPoints = []
     let cPnts = this.getControlPoints()
+    this.tempControlPoints = cPnts
     if (cPnts && Array.isArray(cPnts) && cPnts.length > 0) {
       cPnts.forEach((item, index) => {
         let id = 'plot-helper-control-point-div' + '-' + index
@@ -109,9 +112,9 @@ class PlotEdit {
     if (this.activePlot) {
       let geom = this.activePlot.getGeometry()
       if (geom) {
-        let plotInfo = JSON.parse(window.sessionStorage.getItem('plot-info'))
-        if (plotInfo && plotInfo.points && plotInfo.points.length > 0) {
-          points = plotInfo.points
+        let ps = this.activePlot.get('points')
+        if (ps && ps.length > 1) {
+          points = ps
         }
       }
     }
@@ -127,6 +130,49 @@ class PlotEdit {
     this.activePlot = plot
     this.initHelperDom()
     this.initControlPoints()
+    this.dragFeature()
+  }
+
+  /**
+   * 对该feature进行整体拖拽
+   */
+  dragFeature () {
+    this.disableDragPan()
+    this.map.on('pointerdrag', this.pointerDrag, this)
+  }
+
+  pointerDrag (event) {
+    // 根据偏移数值来进行整体移动
+    let [ptx, pty, newPoints] = [event.coordinate[0] - this.tempControlPoints[0][0], event.coordinate[1] - this.tempControlPoints[0][1], []]
+    this.tempControlPoints.forEach((el, index) => {
+      newPoints.push([el[0] + ptx, el[1] + pty])
+      // 再将原有控制点一起移走
+      let id = 'plot-helper-control-point-div' + '-' + index
+      let overlay = this.map.getOverlayById(id)
+      overlay.setPosition(newPoints[index])
+      overlay.setPositioning('center-center')
+    })
+    this.activePlot.getGeometry().setCoordinates(newPoints)
+  }
+
+  disableDragPan () {
+    let interactions = this.map.getInteractions().getArray()
+    interactions.every(item => {
+      if (item instanceof ol.interaction.DragPan) {
+        this.mapDragPan = item
+        this.map.removeInteraction(item)
+        return false
+      } else {
+        return true
+      }
+    })
+  }
+
+  enableDragPan () {
+    if (this.mapDragPan && this.mapDragPan instanceof ol.interaction.DragPan) {
+      this.map.addInteraction(this.mapDragPan)
+      this.mapDragPan = null
+    }
   }
 
   /**
